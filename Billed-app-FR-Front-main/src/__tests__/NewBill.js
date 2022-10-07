@@ -1,4 +1,4 @@
-import { fireEvent, getAllByText, screen, waitFor } from "@testing-library/dom";
+import { fireEvent, getAllByText, screen, wait, waitFor } from "@testing-library/dom";
 import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
 import { ROUTES, ROUTES_PATH } from "../constants/routes";
@@ -25,6 +25,19 @@ describe("Given I am connected as an employee", () => {
   root.setAttribute("id", "root");
   document.body.append(root);
   router();
+  
+  describe("When I am on NewBill Page", () => {
+    test("Then element with text Envoyer une note de frais is available", async() => {
+      window.onNavigate(ROUTES_PATH.NewBill);
+      await waitFor(() => screen.getByText('Envoyer une note de frais'));
+      await waitFor(() => screen.getByTestId('form-new-bill'));
+      const textBtn = screen.getByText('Envoyer une note de frais');
+      const formNewBill = screen.getByTestId('form-new-bill');
+      expect(textBtn).toBeVisible();
+      expect(formNewBill).toBeTruthy();
+      //to-do write assertion
+    })
+  });
 
   describe("When I am on NewBill Page", () => {
     test("Then mail icon in vertical layout should be highlighted", async () => {
@@ -306,6 +319,7 @@ describe('When an error occurs on API', () => {
 
     expect(newBill.billId).toBeNull()
     expect(newBill.fileUrl).toBeNull()
+    expect(newBill.fileName).toBeNull()
   })
 
   
