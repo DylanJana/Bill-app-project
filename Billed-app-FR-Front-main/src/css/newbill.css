@@ -1,3 +1,7 @@
+#formatAlert {
+  display: none;
+}
+
 .form-newbill-container {
   width: 100%;
 }

@@ -2,17 +2,17 @@
  * @jest-environment jsdom
  */
 
+import '@testing-library/jest-dom';
 import {screen, waitFor} from "@testing-library/dom"
+import userEvent from '@testing-library/user-event'
 import Bills from '../containers/Bills.js'
 import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
 import { ROUTES_PATH} from "../constants/routes.js";
 import {localStorageMock} from "../__mocks__/localStorage.js";
-import '@testing-library/jest-dom';
-import mockStore from "../__mocks__/store"
+import mockStore from "../__mocks__/store";
 import { ROUTES } from "../constants/routes.js";
 import router from "../app/Router.js";
-import userEvent from '@testing-library/user-event'
 
 jest.mock("../app/store", () => mockStore)
 
@@ -34,6 +34,7 @@ describe("Given I am connected as an employee", () => {
       expect(windowIcon).toBeVisible() 
 
     })
+
     test("Then bills should be ordered from earliest to latest", () => {
       document.body.innerHTML = BillsUI({ data: bills })
       const dates = screen.getAllByText(/^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i).map(a => a.innerHTML)
@@ -42,6 +43,7 @@ describe("Given I am connected as an employee", () => {
       expect(dates).toEqual(datesSorted)
     })
   })
+  
 })
 
 // test d'intégration GET
@@ -60,6 +62,7 @@ describe("Given I am a user connected as Employee", () => {
 
       document.body.innerHTML = ''
     })
+
   describe("When an error occurs on API", () => {
     beforeEach(() => {
       jest.spyOn(mockStore, "bills")
@@ -77,6 +80,7 @@ describe("Given I am a user connected as Employee", () => {
       document.body.appendChild(root)
       router()
     })
+
     test("fetches bills from an API and fails with 404 message error", async () => {
 
       mockStore.bills.mockImplementationOnce(() => {
@@ -111,7 +115,7 @@ describe("Given I am a user connected as Employee", () => {
 })
 
 describe("Given I am a user connected as Employee", () => {
-  describe("When I click on \"Nouvelle note de frais\"", () => {
+  describe("When I click on 'Nouvelle note de frais'", () => {
     test("Then It should renders new bill page", () => {
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname })
@@ -141,44 +145,44 @@ describe("Given I am a user connected as Employee", () => {
       document.body.innerHTML = ''
     })
   })
-})
 
-describe('When I click on eye icon', () => {
-  beforeEach(() => {
-    jest.spyOn(mockStore, "bills");
-  });
-  test('Then a modale should appear', async () => {
-    Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-    window.localStorage.setItem(
-      'user',
-      JSON.stringify({
-        type: 'Employee',
+  describe('When I click on eye icon', () => {
+    beforeEach(() => {
+      jest.spyOn(mockStore, "bills");
+    });
+    test('Then a modale should appear', async () => {
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          type: 'Employee',
+        })
+      )
+      document.body.innerHTML = BillsUI({ data: bills })
+  
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+  
+      const _bills = new Bills({
+        document,
+        onNavigate,
+        store: null,
+        bills: bills,
+        localStorage: window.localStorage,
       })
-    )
-    document.body.innerHTML = BillsUI({ data: bills })
-
-    const onNavigate = (pathname) => {
-      document.body.innerHTML = ROUTES({ pathname })
-    }
-
-    const _bills = new Bills({
-      document,
-      onNavigate,
-      store: null,
-      bills: bills,
-      localStorage: window.localStorage,
+  
+      const handleClickIconEye = jest.fn((icon) => _bills.handleClickIconEye(icon))
+      const iconEyeList = screen.getAllByTestId('icon-eye')
+      iconEyeList.forEach((iconEye) =>
+        iconEye.addEventListener('click', (e) => handleClickIconEye(iconEye))
+      )
+      userEvent.click(iconEyeList[0])
+      expect(handleClickIconEye).toHaveBeenCalled()
+  
+      await waitFor(() => document.getElementById('modaleFile'))
+      const modal = document.getElementById('modaleFile');
+      expect(modal).toBeVisible();
     })
-
-    const handleClickIconEye = jest.fn((icon) => _bills.handleClickIconEye(icon))
-    const iconEyeList = screen.getAllByTestId('icon-eye')
-    iconEyeList.forEach((iconEye) =>
-      iconEye.addEventListener('click', (e) => handleClickIconEye(iconEye))
-    )
-    userEvent.click(iconEyeList[0])
-    expect(handleClickIconEye).toHaveBeenCalled()
-
-    await waitFor(() => document.getElementById('modaleFile'))
-    const modal = document.getElementById('modaleFile')
-    expect(modal).toBeVisible()
   })
 })

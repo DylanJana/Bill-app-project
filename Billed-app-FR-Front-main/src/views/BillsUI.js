@@ -18,13 +18,14 @@ const row = (bill) => {
     </tr>
     `)
   }
-
+  
 const rows = (data) => {
-  let dataSorted = data.sort(function(a, b) {
-    let dateA = new Date(a.date), dateB = new Date(b.date);
-    return dateB - dateA;
-});
-  return (dataSorted && dataSorted.length) ? dataSorted.map(bill => row(bill)).join("") : ""
+  return data && data.length ? data
+    .sort((a, b) => {
+      return new Date(b.date) - new Date(a.date);
+    })
+    .map((bill) => row(bill))
+    .join('') : '';
 }
 
 export default ({ data: bills, loading, error }) => {

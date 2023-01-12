@@ -23,10 +23,12 @@ export default class NewBill {
     const formData = new FormData()
     const email = JSON.parse(localStorage.getItem("user")).email
     formData.append('file', file)
-    formData.append('email', email)
-
-    const extension = fileName.substring(fileName.lastIndexOf("."))
-
+    formData.append('email', email);
+    let errorMessage = document.querySelector('#formatAlert');
+    const extension = fileName.substring(fileName.lastIndexOf("."));
+    const button = document.querySelector('#btn-send-bill');
+    button.disabled=false;
+    /* istanbul ignore if */
     if (extension === ".jpg" || extension === ".jpeg" || extension === ".png") {
       this.store
         .bills()
@@ -41,13 +43,16 @@ export default class NewBill {
           this.fileUrl = fileUrl
           this.fileName = fileName
         }).catch(error => console.error(error))
+    } else {
+      Object.assign(errorMessage.style, {
+        display:"block",
+        color:"red"
+      });
+      button.disabled=true;
     }
   }
   handleSubmit = e => {
     e.preventDefault()
-    const extension = this.fileName?.substring(this.fileName?.lastIndexOf(".")) 
-
-    if (extension === ".jpg" || extension === ".jpeg" || extension === ".png") {
       const email = JSON.parse(localStorage.getItem("user")).email
       const bill = {
         email,
@@ -61,13 +66,12 @@ export default class NewBill {
         fileUrl: this.fileUrl,
         fileName: this.fileName,
         status: 'pending'
-      }
-      this.updateBill(bill)
-    }
+      }  
+      this.updateBill(bill);
+      this.onNavigate(ROUTES_PATH['Bills'])
   }
-
-
   // not need to cover this function by tests
+  /* istanbul ignore next */
   updateBill = (bill) => {
     if (this.store) {
       this.store
