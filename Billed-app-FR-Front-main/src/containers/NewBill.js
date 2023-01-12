@@ -25,6 +25,7 @@ export default class NewBill {
     formData.append('file', file)
     formData.append('email', email);
     let errorMessage = document.querySelector('#formatAlert');
+    errorMessage.style.display="none";
     const extension = fileName.substring(fileName.lastIndexOf("."));
     const button = document.querySelector('#btn-send-bill');
     button.disabled=false;
