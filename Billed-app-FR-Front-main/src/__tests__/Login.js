@@ -78,6 +78,7 @@ describe("Given that I am a user on login page", () => {
 
       // we have to mock navigation to test it
       const onNavigate = (pathname) => {
+        // Delete data: arrayEmpty is not necessary
         document.body.innerHTML = ROUTES({ pathname });
       };
 

@@ -1,3 +1,4 @@
+// Delete import getAllByText and wait
 import { fireEvent, screen, waitFor } from "@testing-library/dom";
 import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
@@ -100,7 +101,7 @@ describe("Given I am connected as an employee", () => {
       inputFile.addEventListener("change", handleChangeFile);
 
       fireEvent.change(inputFile, { target: { files: [file] } });
-
+      // Up const form to better order
       const form = screen.getByTestId("form-new-bill");
 
       expect(handleChangeFile).toHaveBeenCalled();
@@ -108,6 +109,7 @@ describe("Given I am connected as an employee", () => {
       expect(form).toBeTruthy();
     });
 
+    // New test with file pdf and error message displayed
     test("Then the error message should be displayed", () => {
       document.body.innerHTML = NewBillUI();
       const onNavigate = (pathname) => {
@@ -134,8 +136,9 @@ describe("Given I am connected as an employee", () => {
       // Get my error message
       let errorMessage = screen.getByTestId('error-message');
       expect(errorMessage.textContent).toEqual(
+        // String received is strict equal to this string
         expect.stringContaining(
-          'Formats acceptés .jpg, .jpeg, png'
+          'Formats acceptés .jpg, .jpeg, .png'
         )
       )
     })
@@ -151,7 +154,7 @@ describe("Given I am connected as an employee", () => {
       const newBill = new NewBill({
         document,
         onNavigate,
-        store: mockStore,
+        store: null,
         localStorage: window.localStorage,
       });
 
@@ -165,6 +168,7 @@ describe("Given I am connected as an employee", () => {
 
       expect(handleChangeFile).toHaveBeenCalled();
       expect(inputFile.files[0]).toStrictEqual(file);
+      // Add two expect to check file name and file type
       expect(inputFile.files[0].name).toBe('image.png');
       expect(inputFile.files[0].type).toBe('image/png');
     });
@@ -258,6 +262,7 @@ describe("Given I am connected as Employee on NewBill page, and submit the form"
       fireEvent.submit(form);
       expect(handleSubmit).toHaveBeenCalled();
       expect(newBillJs.updateBill).toHaveBeenCalled();
+      // Check if user to navigate Bills page
       expect(newBillJs.onNavigate).toHaveBeenCalled();
     });
   });
@@ -286,28 +291,33 @@ describe('When an error occurs on API', () => {
         store: mockStore,
         localeStorage: localStorageMock,
       });
+
       const handleSubmit = jest.fn(newBill.handleSubmit);
       const form = screen.getByTestId("form-new-bill");
       form.addEventListener("submit", handleSubmit);
       fireEvent.submit(form);
+      // checks if bills method of mockstore function haveBeenCalled
       expect(mockStore.bills).toHaveBeenCalled();
     });
   });
 
+  // Check if mock bills of API POST working
   test("post new bills from mock API POST", async () => { 
-
+    //Spy object mockStore with method bills
     const postSpy = jest.spyOn(mockStore, "bills");
     const isBills = mockStore.bills();
+    // Wait method update is called
     const bills = await isBills.update(); 
     document.body.innerHTML = NewBillUI();
-    // function bills with parameters mockstore has called
     expect(postSpy).toHaveBeenCalled(); 
-    expect(bills).toBeDefined()
+    expect(bills).toBeDefined();
   })
+
 
   test('Then new bill are added to the API but fetch fails with 404 message error', async () => {
     const spyedMockStore = jest.spyOn(mockStore, 'bills')
-
+    // Spy function called anonymous function. This function return an object with key : create, who has an spy function like value
+    // Spy function value run an function to create new Error
     spyedMockStore.mockImplementationOnce(() => {
       return {
         create: jest.fn().mockRejectedValue(new Error('Erreur 404')),
@@ -347,8 +357,7 @@ describe('When an error occurs on API', () => {
     expect(message).toBeTruthy();
 
     expect(spyedMockStore).toHaveBeenCalled()
-    // Property billId to be null because my test return error 404. newBill doesn't
-    // create an ID
+    // Property billId to be null because my test return error 404. newBill doesn't create an ID
     expect(newBill.billId).toBeNull()
     expect(newBill.fileUrl).toBeNull()
 

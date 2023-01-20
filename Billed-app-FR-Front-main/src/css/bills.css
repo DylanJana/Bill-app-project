@@ -112,3 +112,8 @@ tr td:nth-of-type(5) {
 .bill-proof-container {
   overflow: scroll;
 }
+
+/* Centrage label Actions */
+tr th:last-child {
+  text-align: center;
+}
